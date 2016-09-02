@@ -1,112 +1,103 @@
-﻿
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Cygnos music player</title>
+<meta charset="utf-8">
+  <head>
+    <script src="http://js.leapmotion.com/leap-0.6.3.js"></script>
+    <script src="d3.v3.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
-    <script type='text/javascript'>
-        $(document)
-            .ready(function () {
-                $("#search")
-                    .click(function () {
-                        $.getJSON("api/search/" + $("#query").val(),
-                            function (tracks) {
-                                var items = [];
-                                $.each(tracks,
-                                    function (index, track) {
-                                        items.push("<li data-trackData='" +
-                                           JSON.stringify(track) +
-                                            "'>" +
-                                            track.trackName + ' [' + track.artistName + ']' +
-                                            "</li>");
-                                    });
+  </head>
+  <style>
 
-                                $("#results").html(items.join(""));
-                            });
-                    });
-                $("#stop").click(function () {
-                    $.ajax({
-                        type: "POST",
-                        url: "api/player/stop"
-                    });
-                })
-                $("#pause").click(function () {
-                    $.ajax({
-                        type: "POST",
-                        url: "api/player/pause"
-                    });
-                })
-                $("#results")
-                    .on("click",
-                        "li",
-                        function () {
-                            $.ajax({
-                                type: "POST",
-                                url: "api/player/play",
-                                contentType: "application/json",
-                                data: $(this).attr("data-trackData")
-                            });
-                        });
-            });
-    </script>
-    <script src="http://js.leapmotion.com/leap-0.6.3.min.js"></script>
-    <script>
-        var controllerOptions = { enableGestures: true };
-        var lastCall = 0;
-        Leap.loop(controllerOptions,
-            function (frame) {
-                //Only accept one call every three seconds, to avoid flooding our poor little server
-                if (new Date() - lastCall < 3000)
-                    return;
-               
+  body {
+    margin: 0;
+    background: #222;
+    min-width: 960px;
+  }
 
-                if (frame.hands.length > 0) {
-                    //thumb down (vertical hand) to stop
-                    for (var i = 0; i < frame.hands.length; i++) {
-                        var hand = frame.hands[i];
-                        if (Math.abs(hand.palmNormal[0]) > 0.7) {
-                            $.ajax({
-                                type: "POST",
-                                url: "api/player/stop",
-                                contentType: "application/json",
-                            });
-                            $("#gesture").html("<i>thumb down</i>")
-                            lastCall = new Date();
-                        }
-                    }
+  rect {
+    fill: none;
+    pointer-events: all;
+  }
 
-                    //Devil horns plays rock!
-                    for (var i = 0; i < frame.hands.length; i++) {
-                        var hand = frame.hands[i];
-                        if (hand.pinky.extended && !hand.ringFinger.extended && !hand.middleFinger.extended && hand.indexFinger.extended) {
-                            $.ajax({
-                                type: "POST",
-                                url: "api/player/stop",
-                                url: "api/player/play",
-                                contentType: "application/json",
-                                data: JSON.stringify({ "previewUrl": "https://p.scdn.co/mp3-preview/1ee9f1b0c3e3b327dd49ebc6dd64266b01adb96a" })
-                            });
-                            $("#gesture").html("<i>Devil horns</i>")
-                            lastCall = new Date();
-                        }
-                    }
-                }
-            });
-    </script>
+  circle {
+    fill: none;
+    stroke-width: 2.5px;
+  }
+  </style>
+  
+  <body>
+    
+  </body>
+  <script type="text/javascript">
+    var r = 50;
+  var swidth = 960;
+  var sheight = 600;
+  var width = Math.max(swidth, innerWidth),
+      height = Math.max(sheight, innerHeight);
 
-</head>
+  var i = 0;
 
-<body>
-    <div class="container">
-        <h1>Search for tracks</h1>
-        <p>Type a search query and click on "Search". Then, click on any track to play it on server....</p>
-        <input type="text" id="query" value="" class="form-control" placeholder="Search for..." />
-        <button id="search" onclick="">Search</button>
-        <button id="stop" onclick="">Stop</button>
-        <button id="pause" onclick="">Pause</button>
-        <div id="results"></div>
-        <p id="gesture"></p>
-    </div>
-</body>
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
 
-</html>
+  svg.append("rect")
+      .attr("width", width)
+      .attr("height", height);
+
+  function particle(x, y, r) {
+    console.log('x: %o, y: %o', x, y);
+    svg.insert("circle", "rect")
+        .attr("cx", x)
+        .attr("cy", y)
+        .attr("r", 1e-6)
+        .style("stroke", d3.hsl((i = (i + 1) % 360), 1, .5))
+        .style("stroke-opacity", 1)
+        .transition()
+        .duration(2000)
+        .ease(Math.sqrt)
+        .attr("r", 200)
+        .style("stroke-opacity", 1e-6)
+        .remove();
+    }
+  
+	var lastCall = 0;
+    Leap.loop({enableGestures: true, frameEventName: "animationFrame"}, function(frame) {
+    	if (frame.hands.length > 0) {
+    		//Only accept one call every three seconds, to avoid flooding our poor little server
+            if (new Date() - lastCall > 3000) {
+		        //thumb down (vertical hand) to stop
+		        for (var i = 0; i < frame.hands.length; i++) {
+		            var hand = frame.hands[i];
+		            if (Math.abs(hand.palmNormal[0]) > 0.7) {
+		                $.ajax({
+		                    type: "POST",
+		                    url: "api/player/stop",
+		                    contentType: "application/json",
+		                });
+		                lastCall = new Date();
+		            }
+		            if (hand.pinky.extended && !hand.ringFinger.extended && !hand.middleFinger.extended && !hand.indexFinger.extended && hand.thumb.extended) {
+		                $.ajax({
+		                    type: "POST",
+		                    url: "api/player/stop",
+		                    url: "api/player/play",
+		                    contentType: "application/json",
+		                    data: JSON.stringify({ "previewUrl": "https://p.scdn.co/mp3-preview/1ee9f1b0c3e3b327dd49ebc6dd64266b01adb96a" })
+		                });
+		                lastCall = new Date();
+		            }
+		        }
+		    }
+    	}
+    
+        frame.pointables.forEach(function(pointable) {
+          var position = pointable.stabilizedTipPosition;
+          var normalized = frame.interactionBox.normalizePoint(position);
+
+          var x = 800 * normalized[0];
+          var y = 600 * (1 - normalized[1]);
+
+		  particle(x,y);
+        });
+    });
+  </script>
