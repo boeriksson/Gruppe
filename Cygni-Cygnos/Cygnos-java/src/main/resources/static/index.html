@@ -68,7 +68,7 @@
 		        //thumb down (vertical hand) to stop
 		        for (var i = 0; i < frame.hands.length; i++) {
 		            var hand = frame.hands[i];
-		            if (Math.abs(hand.palmNormal[0]) > 0.7) {
+		            if (hand.pinky.extended && !hand.ringFinger.extended && !hand.middleFinger.extended && hand.indexFinger.extended) {
 		                $.ajax({
 		                    type: "POST",
 		                    url: "api/player/stop",
@@ -82,7 +82,7 @@
 		                    url: "api/player/stop",
 		                    url: "api/player/play",
 		                    contentType: "application/json",
-		                    data: JSON.stringify({ "previewUrl": "https://p.scdn.co/mp3-preview/1ee9f1b0c3e3b327dd49ebc6dd64266b01adb96a" })
+		                    data: JSON.stringify({ "previewUrl": "https://p.scdn.co/mp3-preview/dd381a25b14a330075750a57d2cfbd01f57d55ef" })
 		                });
 		                lastCall = new Date();
 		            }
