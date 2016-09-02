@@ -1,0 +1,10 @@
+
+
+
+paint up the jam 
+
+Idée 
+Visualisera musik med dina händer, spara det som stillbild eller musikvideo. Augumented reality eller virtual reality är två möjliga vägar att gå för att ta idéen till banbrytande underhållning i hemmet. 
+
+Om Cygnos ledning beslutar att fortsätta projektet planerar vi följande.
+Det första steget är att låta ett korsfunktionellt team(ux, design, utvecklare) fortsätta prototypa produkten och testa funktioner mot användare. För att få enkel tillgång till potentiella användare har vi redan fått klartecken för ett bord mitt i gallerian för teamet. Redan efter ett par veckor börjar lämpliga funktioner och förväntad marknadsrespons ta form, risken att fortsätta utforskningsfasen av projektet är därför mycket liten. 
